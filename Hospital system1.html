@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <title>Hospital Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Courier;
+        }
+
+        body, html {
+            height: 100%;
+        }
+
+        .full-page {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 2%;
+            background-color: #4535AA;
+            color: #fff;
+        }
+
+        nav .nav-options a {
+            text-decoration: none;
+            padding: 5px 10px;
+            color: #000;
+            background-color: #FFB643;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+
+        nav .logout {
+            padding: 5px 10px;
+            color: #fff;
+            background-color: #FF0000;
+            border-radius: 5px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: #E7E4F8;
+        }
+
+        .main-content nav {
+            margin-bottom: 20px;
+        }
+
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        #about-hospital {
+            display: flex;
+            flex-direction: row;
+            padding: 30px;
+            background-color: #000;
+            color: #eee;
+        }
+
+        #about-hospital .user-info {
+            flex: 2;
+            padding: 40px;
+        }
+
+        #about-hospital .user-pic {
+            flex: 1;
+            padding: 40px;
+        }
+
+        #patient-detail, #medical-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #patient-detail .search-container, #medical-detail .search-container {
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        #patient-detail .details-container, #medical-detail .details-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        #patient-detail .details-container table, #medical-detail .details-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #patient-detail .details-container table, #medical-detail .details-container table,
+        #patient-detail .details-container th, #medical-detail .details-container th,
+        #patient-detail .details-container td, #medical-detail .details-container td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+
+        #patient-detail .details-container th, #medical-detail .details-container th {
+            background-color: #4535AA;
+            color: white;
+        }
+
+        .search-container input[type="text"] {
+            width: calc(100% - 120px);
+        }
+
+        .search-container button {
+            padding: 10px;
+            background-color: #4535aa;
+            border: none;
+            color: #FFF;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-container button:hover {
+            background-color: #1c1c1c;
+        }
+
+        @media (max-width: 650px) {
+            #about-hospital {
+                flex-direction: column;
+            }
+
+            #patient-detail, #medical-detail {
+                flex-direction: column;
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            .nav-options a {
+                font-size: 0.75em;
+            }
+        }
+    </style>
+    <script>
+        function logout() {
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+        }
+
+        function showDetails(section) {
+            document.querySelectorAll('.section').forEach(function(element) {
+                element.style.display = 'none';
+            });
+            document.getElementById(section).style.display = 'flex';
+        }
+
+        function searchPatient() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("patientSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("patientTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }       
+            }
+        }
+
+        function loadDataFromCSV(url, tableId) {
+            fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                const rows = data.split('\n');
+                const table = document.getElementById(tableId);
+                table.innerHTML = '';
+                rows.forEach(row => {
+                    const rowData = row.split(',');
+                    const tr = document.createElement('tr');
+                    rowData.forEach(cellData => {
+                        const td = document.createElement('td');
+                        td.textContent = cellData;
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDataFromCSV('https://hospital1-website.s3.eu-north-1.amazonaws.com/patient_data.csv', 'patientTable');
+        });
+    </script>
+</head>
+<body>
+    <!-- Main Content -->
+    <div id="main-content" class="main-content">
+        <div class="centered">
+            <h1>International Hospital🏥</h1>
+            <div>
+                <span class="logout" onclick="logout()">Logout</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-options centered">
+                <span><a href="#" onclick="showDetails('about-hospital')">About Hospital</a></span>
+                <span><a href="#" onclick="showDetails('patient-detail')">Patient Detail</a></span>
+                <span><a href="#" onclick="showDetails('medical-detail')">Medical Detail</a></span>
+                <span><a href="#" onclick="showDetails('ongoing-activity')">Ongoing Activity</a></span>
+            </div>
+        </nav>
+
+        <!-- About Hospital -->
+        <div id="about-hospital" class="section">
+            <div class="user-info">
+                <h1>International Hospital Pune</h1>
+                <p>International hospitals typically offer state-of-the-art medical equipment and advanced healthcare services, providing patients with access to the latest medical technologies and treatments.</p>
+            </div>
+            <div class="user-pic">
+                <img src="https://bit.ly/3ajBt3v" class="img-circle img-responsive"/>
+            </div>
+        </div>
+
+        <!-- Patient Detail -->
+        <div id="patient-detail" class="section">
+            <div class="search-container">
+                <h2>Search Patient</h2>
+                <input type="text" id="patientSearch" onkeyup="searchPatient()" placeholder="Search for patient..">
+            </div>
+            <div class="details-container">
+                <table id="patientTable">
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Age</th>
+                        <th>Weight</th>
+                        <th>Reason of Admit</th>
+                        <th>Room No</th>
+                        <th>Floor No</th>
+                        <th>Doctor Name</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Medical Detail -->
+        <div id="medical-detail" class="section">
+            <div class="search-container">
+                <h2>Search Medical Record</h2>
+                <input type="text" id="medicalSearch" onkeyup="searchPatient()" placeholder="Search for medical record..">
+            </div>
+            <div class="details-container">
+                <table id="medicalTable">
+                    <!-- Medical data will be loaded dynamically -->
+                </table>
+            </div>
+        </div>
+
+        <!-- Ongoing Activity -->
+        <div id="ongoing-activity" class="section">
+            <div class="ongoing-activity">
+                <h2 class="project-name">Activity 1</h2>
+                <p class="project-info">Details about ongoing activity 1.</p>
+            </div>
+            <div class="ongoing-activity">
+                <h2 class="project-name">Activity 2</h2>
+                <p class="project-info">Details about ongoing activity 2.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
